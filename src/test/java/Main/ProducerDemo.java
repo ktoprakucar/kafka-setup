@@ -9,7 +9,7 @@ public class ProducerDemo {
 
     @Before
     public void setUp() {
-        producer = new SimpleProducer();
+        producer = new SimpleProducer("kafkaProducer");
     }
 
     @Test

@@ -15,8 +15,8 @@ public class SimpleProducer {
     private Properties properties;
     private Producer<Long, String> producer;
 
-    public SimpleProducer() {
-        setProperties();
+    public SimpleProducer(String producerId) {
+        setProperties(producerId);
         producer = new KafkaProducer<Long, String>(properties);
     }
 
@@ -35,10 +35,10 @@ public class SimpleProducer {
         }
     }
 
-    public void setProperties() {
+    public void setProperties(String producerId) {
         properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
-        properties.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaProducer");
+        properties.put(ProducerConfig.CLIENT_ID_CONFIG, producerId);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class.getName());
     }
