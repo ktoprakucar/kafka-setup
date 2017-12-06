@@ -26,18 +26,20 @@ public class ProducerConsumerDemo {
     public void should_three_producers_produce_topics_then_consumer_pull_the_selected_topic() {
         //given
         SimpleConsumer consumer = new SimpleConsumer();
-        SimpleProducer firstProducer = new SimpleProducer("firstProducer");
-        SimpleProducer secondProducer = new SimpleProducer("secondProducer");
-        SimpleProducer thirdProducer = new SimpleProducer("thirdProducer");
+        SimpleProducer firstProducer = new SimpleProducer("payment");
+        SimpleProducer secondProducer = new SimpleProducer("refund");
+        SimpleProducer thirdProducer = new SimpleProducer("settlement");
 
         Long timeOut = 1000L;
         Long key = 1L;
-        String value = "meydey meydey";
+        String firstMessage = "{\"price\": 300, \"type\": \"payment\"}";
+        String secondMessage = "{\"price\": 150, \"type\": \"refund\"}";
+        String thirdMessage = "{\"price\": 140, \"type\": \"settlement\"}";
 
         //when
-        firstProducer.send("kafka-init", key, value, 25);
-        secondProducer.send("kafka-process", key, value, 25);
-        thirdProducer.send("kafka-done", key, value, 25);
-        consumer.subscribeAndPrintTopics("kafka-done", timeOut);
+        firstProducer.send("balance", key, firstMessage, 1);
+        secondProducer.send("balance", key, secondMessage, 1);
+        thirdProducer.send("balance", key, thirdMessage, 1);
+        consumer.subscribeAndPrintTopics("balance", timeOut);
     }
 }

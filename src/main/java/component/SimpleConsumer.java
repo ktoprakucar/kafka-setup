@@ -1,5 +1,10 @@
 package component;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import jdk.nashorn.internal.parser.JSONParser;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -22,13 +27,18 @@ public class SimpleConsumer {
     }
 
     public void subscribeAndPrintTopics(String topicName, long timeout) {
+        int price = 0;
         consumer.subscribe(Arrays.asList(topicName));
         ConsumerRecords<Long, String> records = consumer.poll(timeout);
         System.out.println(records.count());
         for (ConsumerRecord<Long, String> record : records) {
-            System.out.printf("offset = %d, key = %s, value = %s\n",
-                    record.offset(), record.key(), record.value());
+            //System.out.printf("offset = %d, key = %s, value = %s\n",
+            //        record.offset(), record.key(), record.value());
+            Balance balance = new Gson().fromJson(record.value().replace(".v0", ""), Balance.class);
+            System.out.println("type: " + balance.getType() + ", amount: " + balance.getPrice());
+            price += calculatePrice(balance);
         }
+        System.err.println("\ntotal price:" + price + " try");
         consumer.commitAsync();
         consumer.close();
     }
@@ -39,6 +49,16 @@ public class SimpleConsumer {
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, "KafkaConsumer");
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+    }
+
+    private int calculatePrice(Balance balance) {
+        if ("payment".equals(balance.getType()))
+            return balance.getPrice();
+        else if ("refund".equals(balance.getType()))
+            return -balance.getPrice();
+        else if ("settlement".equals(balance.getType()))
+            return -balance.getPrice();
+        else return 0;
     }
 
     public Properties getProperties() {
